@@ -26,34 +26,11 @@ function LocationMarker() {
         },
     });
 
-    // const isCalldevice = localStorage.getItem('isCalldevice');
-    // useEffect(() => {
-    //     console.log(isCalldevice);
-    //     if (!isCalldevice) {
-    //         const fetch = async () => {
-    //             const res = await axios({
-    //                 method: 'GET',
-    //                 url: 'http://localhost:3002/api/devices/getall',
-    //             })
-    //                 .then(async (data) => {
-    //                     console.log(data);
-    //                     if (data.data.result) {
-    //                         marker();
-    //                         localStorage.setItem('isCalldevice', true);
-    //                     }
-    //                 })
-    //                 .catch((error) => {
-    //                     console.log(error);
-    //                 });
-    //         };
-    //         fetch();
-    //     }
-    // }, []);
     const marker = async (params) => {
         try {
             const res = await axios({
                 method: 'GET',
-                url: 'http://localhost:3002/api/marker/getall',
+                url: 'http://192.168.102.5:3002/api/marker/getall',
                 params,
             });
             console.log(res?.data);

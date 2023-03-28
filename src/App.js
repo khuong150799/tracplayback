@@ -14,7 +14,9 @@ import axios from 'axios';
 import { format } from 'date-fns';
 import moment from 'moment/moment';
 import LocationMarker from './LocationMarker';
+import io from 'socket.io-client';
 // import { useMapEvents } from 'react-leaflet';
+const socket = io('http://192.168.102.5:3002');
 const data = [
     { lng: 106.628597, lat: 10.823787, time: 1635759970 },
     { lng: 106.628747, lat: 10.823537, time: 1635759972 },
@@ -34,7 +36,8 @@ const data = [
 
 function App() {
     const mapRef = useRef(null);
-    const mapRef_ = useRef(null);
+    const intervalRef = useRef();
+
     const [map, setMap] = useState();
     const [isMapReady, setIsMapReady] = useState(false);
 
@@ -53,7 +56,17 @@ function App() {
         const seconds = dateObj.getSeconds().toString().padStart(2, '0'); // lấy giây và định dạng về dạng chuỗi, sử dụng padStart để đảm bảo chuỗi có 2 kí tự
         return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
     };
-
+    useEffect(() => {
+        intervalRef.current = setInterval(() => {
+            socket.emit('request', { deviceName: 'device_2' });
+        }, 10000);
+        return () => clearInterval(intervalRef.current);
+    }, []);
+    useEffect(() => {
+        socket.on('send', (mess) => {
+            console.log(mess);
+        });
+    }, []);
     useEffect(() => {
         if (map && isMapReady) {
             const Options = {
@@ -165,13 +178,10 @@ function App() {
     return (
         <div id="map">
             <MapContainer
-                // onMouseUp={handleMouseUp}
-                ref={mapRef_}
                 center={[10.823099, 106.629662]}
                 zoom={13}
                 style={{ width: '100%', height: '500px' }}
                 whenReady={(mapInstance) => {
-                    console.log(122);
                     mapRef.current = mapInstance;
                     setIsMapReady(true);
                 }}
