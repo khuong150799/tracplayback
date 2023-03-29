@@ -2,27 +2,26 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet/dist/leaflet.js';
 import axios from 'axios';
-import { useEffect, useState } from 'react';
-import { Marker, Popup, useMapEvents } from 'react-leaflet';
+import { useEffect, useRef, useState } from 'react';
+import { Marker, Popup, Tooltip, useMapEvents } from 'react-leaflet';
 
 function LocationMarker() {
-    const [position, setPosition] = useState(null);
     const [dataMarker, setDataMarker] = useState([]);
-    const [latlng, setLatlng] = useState({});
-    // const [lng, setLng] = useState();
+
     const myIcon = L.icon({
         iconUrl: 'http://real.gpscenter.xyz/V2/dist/static/images/car/gray_22.png',
         iconSize: [32, 32],
     });
 
     const map = useMapEvents({
-        mouseup(e) {
-            setDataMarker([]);
-            marker({
-                lat: e.latlng.lat,
-                lng: e.latlng.lng,
-                distance: 10000,
-            });
+        moveend(e) {
+            console.log(e);
+            // setDataMarker([]);
+            // marker({
+            //     lat: e.latlng.lat,
+            //     lng: e.latlng.lng,
+            //     distance: 10000,
+            // });
         },
     });
 
@@ -53,8 +52,28 @@ function LocationMarker() {
     return (
         dataMarker.length > 0 &&
         dataMarker.map((value) => (
-            <Marker key={value.id} position={[value.lat, value.lng]} icon={myIcon}>
-                <Popup>
+            <Marker
+                key={value.id}
+                position={[value.lat, value.lng]}
+                icon={myIcon}
+                eventHandlers={{
+                    click: (e) => {
+                        console.log(e);
+                        e.target.closeTooltip();
+                    },
+                    popupclose: (e) => {
+                        e.target.openTooltip();
+                    },
+                }}
+            >
+                <Tooltip permanent={true}>{value.lat}</Tooltip>
+                <Popup
+                    eventHandlers={{
+                        popupclose: (e) => {
+                            console.log(e);
+                        },
+                    }}
+                >
                     A pretty CSS3 popup. <br /> Easily customizable.
                 </Popup>
             </Marker>
