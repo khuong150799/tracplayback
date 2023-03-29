@@ -136,7 +136,9 @@ function App() {
                     playPause.innerText = 'Play';
                     const progress = L.DomUtil.create('input', 'leaflet-control-progress', container);
                     const currentTimes = L.DomUtil.create('span', 'leaflet-current-times', container);
+                    const currentSpeed = L.DomUtil.create('div', 'leaflet-current-speed', container);
                     currentTimes.innerText = formatDate(startTimes);
+                    currentSpeed.innerText = 'x1';
                     progress.type = 'range';
                     progress.value = '0';
                     progress.step = '1';
@@ -150,6 +152,10 @@ function App() {
                             // console.log('valueProgress',valueProgress);
                             progress.value = valueProgress;
                             // console.log('e.time',e.time)
+                            if (e.time === endTimes) {
+                                playPause.innerText = 'Play';
+                                trackPlayback.stop();
+                            }
                         },
                         this,
                     );
@@ -161,12 +167,42 @@ function App() {
                         } else {
                             playPause.innerText = 'Pause';
                             trackPlayback.start();
+                            if (trackPlayback.getCurTime() === endTimes) {
+                                trackPlayback.setCursor(startTimes);
+                            }
                         }
                     });
                     L.DomEvent.on(progress, 'input', function () {
                         const valueProgressChange = progress.value;
                         const currentTimesPlayback = (valueProgressChange * totalTimesPlayback) / 100 + startTimes;
                         trackPlayback.setCursor(currentTimesPlayback);
+                    });
+                    L.DomEvent.on(currentSpeed, 'click', () => {
+                        switch (currentSpeed.innerText) {
+                            case 'x1':
+                                currentSpeed.innerText = 'x2';
+                                progress.step = 2;
+                                trackPlayback.setSpeed(2);
+                                break;
+                            case 'x2':
+                                currentSpeed.innerText = 'x4';
+                                progress.step = 4;
+                                trackPlayback.setSpeed(4);
+                                break;
+                            case 'x4':
+                                currentSpeed.innerText = 'x8';
+                                progress.step = 8;
+                                trackPlayback.setSpeed(8);
+                                break;
+                            case 'x8':
+                                currentSpeed.innerText = 'x1';
+                                progress.step = 1;
+                                trackPlayback.setSpeed(1);
+                                break;
+
+                            default:
+                                break;
+                        }
                     });
                     return container;
                 },

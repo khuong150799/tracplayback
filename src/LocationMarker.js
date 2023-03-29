@@ -7,21 +7,32 @@ import { Marker, Popup, Tooltip, useMapEvents } from 'react-leaflet';
 
 function LocationMarker() {
     const [dataMarker, setDataMarker] = useState([]);
+    const [clickMarker, setClickMarker] = useState(false);
+    const clickRef = useRef(false);
 
     const myIcon = L.icon({
         iconUrl: 'http://real.gpscenter.xyz/V2/dist/static/images/car/gray_22.png',
         iconSize: [32, 32],
     });
 
-    const map = useMapEvents({
-        moveend(e) {
-            console.log(e);
-            // setDataMarker([]);
-            // marker({
-            //     lat: e.latlng.lat,
-            //     lng: e.latlng.lng,
-            //     distance: 10000,
-            // });
+    useMapEvents({
+        mouseup(e) {
+            // console.log(e);
+            const timeoutId = setTimeout(() => {
+                console.log(clickRef.current);
+                if (clickRef.current) {
+                    console.log(123);
+                    clickRef.current = false;
+                    return;
+                }
+                setDataMarker([]);
+                marker({
+                    lat: e.latlng.lat,
+                    lng: e.latlng.lng,
+                    distance: 10000,
+                });
+            }, 100);
+            // clearTimeout(timeoutId);
         },
     });
 
@@ -42,7 +53,6 @@ function LocationMarker() {
     };
 
     useEffect(() => {
-        // console.log(23415);
         marker();
     }, []);
     useEffect(() => {
@@ -58,22 +68,19 @@ function LocationMarker() {
                 icon={myIcon}
                 eventHandlers={{
                     click: (e) => {
-                        console.log(e);
+                        // console.log(e);
                         e.target.closeTooltip();
+                        // console.log(clickMarker);
+                        clickRef.current = true;
                     },
                     popupclose: (e) => {
+                        clickRef.current = true;
                         e.target.openTooltip();
                     },
                 }}
             >
                 <Tooltip permanent={true}>{value.lat}</Tooltip>
-                <Popup
-                    eventHandlers={{
-                        popupclose: (e) => {
-                            console.log(e);
-                        },
-                    }}
-                >
+                <Popup>
                     A pretty CSS3 popup. <br /> Easily customizable.
                 </Popup>
             </Marker>
